@@ -6,29 +6,31 @@
 Program.cs
 
 ```
+namespace MapfyDemo;
 using Mapfy;
 
+public class PostalCode
+{
+    public string OldCode { get; set; }
+}
 
-public class CEP
+public class PostalCodeDto
 {
-    public string Codigo { get; set; }
+    public string Code { get; set; }
 }
-public class CEPDto
-{
-    public string Codigo { get; set; }
-}
+
 public class Address
 {
     public string City { get; set; }
     public string State { get; set; }
-    public CEP Cep { get; set; }
+    public PostalCode PostalCode { get; set; }
 }
 
 public class AddressDto
 {
     public string City { get; set; }
     public string Province { get; set; }
-    public CEPDto Cep { get; set; }
+    public PostalCodeDto PostalCode { get; set; }
 }
 
 public class Person
@@ -37,6 +39,7 @@ public class Person
     public string LastName { get; set; }
     public int Age { get; set; }
     public string Email { get; set; }
+
     public string Code; // field
     public Address? Address { get; set; }
     public List<string> Tags { get; set; }
@@ -48,12 +51,11 @@ public class PersonDto
     public string FullName { get; set; }
     public int Age { get; set; }
     public string Email { get; set; }
+
     public string Code; // field
-    public string City { get; set; }
     public AddressDto? Address { get; set; }
     public List<string> Tags { get; set; }
     public string[] Aliases { get; set; }
-
 }
 
 internal static class Demo
@@ -63,41 +65,40 @@ internal static class Demo
         var cfg = new MapperConfiguration(c =>
         {
 
-            c.For<CEP, CEPDto>()
+            c.For<PostalCode, PostalCodeDto>()
                 .Strategy(MappingStrategy.CompiledExpressions)
                 .CaseInsensitive()
-            //.ForMember(d => d.Codigo, o => o.MapFrom(s => s.Codigo))
+                .ForMember(d => d.Code, s => s.MapFrom(i => i.OldCode))
             ;
 
             c.For<Address, AddressDto>()
                 .Strategy(MappingStrategy.CompiledExpressions)
                 .CaseInsensitive()
-                .ForMember(d => d.Province, o => o.MapFrom(s => s.State))
-            //.ForMember(d => d.City, o => o.MapFrom(s => s.City))
+                .ForMember(d => d.Province, s => s.MapFrom(i => i.State))
             ;
 
 
             c.For<Person, PersonDto>()
                 .Strategy(MappingStrategy.CompiledExpressions)
                 .CaseInsensitive()
-                .ForMember(d => d.FullName, o => o.MapFrom(s => s.FirstName + " " + s.LastName))
-                .ForMember(d => d.Code, o => o.MapFrom(s => s.Code));
+                .ForMember(d => d.FullName, s => s.MapFrom(i => i.FirstName + " " + i.LastName))
+                .ForMember(d => d.Code, s => s.MapFrom(i => i.Code));
 
         });
 
         var mapper = cfg.CreateMapper();
-        MapfyContext.SetDefault(mapper); // enable p.Map<TDest>()
+        MapfyContext.SetDefault(mapper); // Enable p.Map<TDest>()
 
         var p = new Person()
         {
             Code = "X-42",
-            FirstName = "Ada",
-            LastName = "Lovelace",
+            FirstName = "John",
+            LastName = "Doe",
             Age = 36,
-            Email = "ada@example.com",
-            Address = new Address { City = "London", State = "ENG", Cep = new CEP() { Codigo = "03132080" } },
+            Email = "john@example.com",
+            Address = new Address { City = "Miami", State = "FL", PostalCode = new PostalCode() { OldCode = "031320" } },
             Tags = new List<string> { "math", "programming" },
-            Aliases = new[] { "Augusta", "Ada L." }
+            Aliases = new[] { "John", "Doe" }
         };
 
         // 1) Original style
@@ -113,7 +114,6 @@ internal static class Demo
         Console.WriteLine("Age: " + dto3.Age);
         Console.WriteLine("Email: " + dto3.Email);
         Console.WriteLine("Code: " + dto3.Code);
-        Console.WriteLine("City: " + dto3.City);
         Console.WriteLine("Address.City: " + (dto3.Address != null ? dto3.Address.City : null) + ", Province: " + (dto3.Address != null ? dto3.Address.Province : null));
         Console.WriteLine("Tags: " + string.Join(",", dto3.Tags));
         Console.WriteLine("Aliases: " + string.Join(",", dto3.Aliases));
@@ -121,18 +121,21 @@ internal static class Demo
         var many = new[]
         {
             new Person()   {
-                Code = "A-1",
+            Code = "A-1",
             FirstName = "Ada",
             LastName = "Lovelace",
             Age = 36,
             Email = "ada@example.com",
+            Address = new Address { City = "Miami", State = "FL", PostalCode = new PostalCode() { OldCode = "031320" } },
+
         },
             new Person()   {
-                Code ="B-2",
+            Code ="B-2",
             FirstName = "Ada",
             LastName = "Lovelace",
             Age = 36,
             Email = "ada@example.com",
+            Address = new Address { City = "Miami", State = "FL", PostalCode = new PostalCode() { OldCode = "031320" } },
         }
         };
 
@@ -148,8 +151,5 @@ public static class Program
         Demo.Run();
     }
 }
-
-
-
 
 ```
