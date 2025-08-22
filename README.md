@@ -6,6 +6,14 @@ This repo is provided as it is, I´m not planning to make any improvments.
 Feel free to fork and improve!
 This it´s just a example with the good prompt AI can build some daily solutions.
 
+## Benchmark
+
+Payload: 100.000 rows from EF Core
+
+Load time from EF: 00:00:09.0380295 (Our SQL Server is in USA and I ran the Solution in Brazil)
+
+Processing Time: 00:00:00.0168305 (I´m scared LOL)
+
 
 
 ## Example of use
@@ -160,14 +168,6 @@ public static class Program
 }
 
 ```
-
-## Benchmark
-
-Payload: 100.000 rows from EF Core
-
-Load time from EF: 00:00:09.0380295 (Our SQL Server is in USA and I ran the Solution in Brazil)
-
-Processing Time: 00:00:00.0168305 (I´m scared LOL)
 
 
 
