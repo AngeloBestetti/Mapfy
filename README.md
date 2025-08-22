@@ -6,14 +6,21 @@ This repo is provided as it is, I´m not planning to make any improvments.
 Feel free to fork and improve!
 This it´s just a example with the good prompt AI can build some daily solutions.
 
-## Benchmark
+## Benchmark 1
 
 Payload: 100.000 rows from EF Core
 
 Load time from EF: 00:00:09.0380295 (Our SQL Server is in USA and I ran the Solution in Brazil)
 
-Processing Time: 00:00:00.0168305 (I´m scared LOL)
+Processing Time: 00:00:00.0168305 (I´m surprised)
 
+## Benchmar 2
+
+Payload: 1.000.000 rows from EF Core
+
+Load time from EF: 00:01:15.7912795 
+
+Processing Time: 00:00:00.3713606 (I´m scared)
 
 
 ## Example of use
