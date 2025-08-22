@@ -14,7 +14,7 @@ Load time from EF: 00:00:09.0380295 (Our SQL Server is in USA and I ran the Solu
 
 Processing Time: 00:00:00.0168305 (I´m surprised)
 
-## Benchmar 2
+## Benchmark 2
 
 Payload: 1.000.000 rows from EF Core
 
