@@ -160,3 +160,14 @@ public static class Program
 }
 
 ```
+
+## Benchmark
+
+Payload: 100.000 rows from EF Core
+
+Load time from EF: 00:00:09.0380295 (Our SQL Server is in USA and I ran the Solution in Brazil)
+
+Processing Time: 00:00:00.0168305 (I´m scared LOL)
+
+
+
