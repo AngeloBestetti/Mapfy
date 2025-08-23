@@ -49,7 +49,7 @@ jobs:
         run: dotnet restore Mapfy.csproj
 
       - name: Build (Release)
-        run: dotnet build Mapfy.csprj -c Release --no-restore
+        run: dotnet build Mapfy.csproj -c Release --no-restore
 
       - name: Add GitHub Packages source (auth via GITHUB_TOKEN)
         run: |
