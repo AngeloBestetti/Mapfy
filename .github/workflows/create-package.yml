@@ -1,0 +1,86 @@
+# File: .github/workflows/nuget-publish.yml
+name: Build, Pack & Publish (NuGet → GitHub Packages)
+
+on:
+  push:
+    tags:
+      - "v*"   # e.g., v1.2.3 or v1.2.3-beta.1
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Override package version (e.g., 1.2.3 or 1.2.3-beta.1)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  packages: write  # required to publish to GitHub Packages
+
+jobs:
+  pack-and-publish:
+    runs-on: ubuntu-latest
+    env:
+      NUGET_SOURCE_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+
+      - name: Compute package version
+        id: ver
+        shell: bash
+        run: |
+          # Prefer manual input, then tag (strip leading 'v'), else fallback to CI run number
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.version }}" ]]; then
+            echo "PKG_VERSION=${{ inputs.version }}" >> "$GITHUB_ENV"
+          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "PKG_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "PKG_VERSION=0.1.${{ github.run_number }}" >> "$GITHUB_ENV"
+          fi
+          echo "Resolved version: $PKG_VERSION"
+
+      - name: Restore
+        run: dotnet restore Mapfy.sln
+
+      - name: Build (Release)
+        run: dotnet build Mapfy.sln -c Release --no-restore
+
+      - name: Add GitHub Packages source (auth via GITHUB_TOKEN)
+        run: |
+          dotnet nuget add source \
+            --username "${{ github.repository_owner }}" \
+            --password "${{ secrets.GITHUB_TOKEN }}" \
+            --store-password-in-clear-text \
+            --name github "$NUGET_SOURCE_URL"
+
+      - name: Pack library
+        run: |
+          dotnet pack Mapfy.csproj -c Release -o artifacts \
+            -p:ContinuousIntegrationBuild=true \
+            -p:PackageVersion="$PKG_VERSION" \
+            -p:RepositoryUrl="${{ github.server_url }}/${{ github.repository }}" \
+            -p:RepositoryCommit="${{ github.sha }}" \
+            -p:IncludeSymbols=true \
+            -p:SymbolPackageFormat=snupkg
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mapfy-nuget-$PKG_VERSION
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+      - name: Publish to GitHub Packages (skip duplicates)
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # some tools respect this env var
+        run: |
+          dotnet nuget push "artifacts/*.nupkg" \
+            --source "github" \
+            --skip-duplicate
