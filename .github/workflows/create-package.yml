@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            8.0.x
+            9.0.x
 
       - name: Compute package version
         id: ver
@@ -46,10 +46,10 @@ jobs:
           echo "Resolved version: $PKG_VERSION"
 
       - name: Restore
-        run: dotnet restore Mapfy.sln
+        run: dotnet restore Mapfy.csproj
 
       - name: Build (Release)
-        run: dotnet build Mapfy.sln -c Release --no-restore
+        run: dotnet build Mapfy.csprj -c Release --no-restore
 
       - name: Add GitHub Packages source (auth via GITHUB_TOKEN)
         run: |
