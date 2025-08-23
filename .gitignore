@@ -9,6 +9,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+
+# Bloqueia o SLN para nao buildar o Demo junto no gitaction
 *.sln
 
 # User-specific files (MonoDevelop/Xamarin Studio)
